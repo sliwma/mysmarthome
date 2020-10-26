@@ -1,0 +1,80 @@
+esphome:
+  name: <YOUR NAME>
+  platform: ESP8266
+  board: esp8285
+
+ifi:
+  ssid: "<YOUR SSID>"
+  password: "<YOUR PASSWORD>"
+
+  manual_ip:
+    static_ip: <YOUR IP>
+    gateway: <YOUR GATEWAY>
+    subnet: <YOUR SUBNET>
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "<YOUR FALLBACK SSID>"
+    password: "<YOUR FALLBACK PASSWORD>"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "<YOUR API PASSWORD>"
+
+ota:
+  password: "<YOUR API PASSWORD>"
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: true
+
+binary_sensor:
+  - platform: gpio
+    pin: GPIO00
+    id: reset
+    internal: true
+    filters:
+      - invert:
+      - delayed_off: 10ms
+    on_press:
+      - switch.toggle: 
+          id: relay
+
+  - platform: gpio
+    name: "Switch_Relay"
+    pin: GPIO04
+    id: switch_01
+    on_press:
+      then:
+        - switch.toggle:
+            id: relay
+            
+    on_release:
+      then:
+        - switch.toggle:
+            id: relay
+
+switch:
+  - platform: gpio
+    name: "Relay"
+    pin: GPIO12
+    id: relay
+    restore_mode: restore_default_off
+    on_turn_on:
+    - switch.turn_on:
+        id: RelayLED
+    on_turn_off:
+    - switch.turn_off:
+        id: RelayLED
+
+  - platform: gpio
+    name: "RelayLED"
+    pin: GPIO2
+    id: RelayLED
+    restore_mode: restore_default_off
+    internal: true

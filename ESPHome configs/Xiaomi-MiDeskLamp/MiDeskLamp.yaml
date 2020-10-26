@@ -1,0 +1,104 @@
+esphome:
+  name: <YOUR NAME>
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "<YOUR SSID>"
+  password: "<YOUR PASSWORD>"
+
+  manual_ip:
+    static_ip: <YOUR IP>
+    gateway: <YOUR GATEWAY>
+    subnet: <YOUR SUBNET>
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "<YOUR FALLBACK SSID>"
+    password: "<YOUR FALLBACK PASSWORD>"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "<YOUR API PASSWORD>"
+
+ota:
+  password: "<YOUR API PASSWORD>"
+
+sensor:
+  - platform: rotary_encoder
+    id: rotation
+    pin_a: GPIO13
+    pin_b: GPIO12
+    resolution: 2
+    on_value:
+      then:
+        - if:
+            condition:
+              # Check if Button is pressed while rotating
+              lambda: 'return id(button).state;'
+            then:
+              # If Button is pressed, change CW/WW
+              - lambda: |-
+                  auto min_temp = id(light1).get_traits().get_min_mireds();
+                  auto max_temp = id(light1).get_traits().get_max_mireds();
+                  auto cur_temp = id(light1).current_values.get_color_temperature();
+                  auto new_temp = max(min_temp, min(max_temp, cur_temp + (x*20)));
+                  auto call = id(light1).turn_on();
+                  call.set_color_temperature(new_temp);
+                  call.perform();
+            else:
+              # If Button is not pressed, change brightness
+              - light.dim_relative:
+                  id: light1
+                  relative_brightness: !lambda |-
+                    return x / 10.0;
+        # Reset Rotation to 0
+        - sensor.rotary_encoder.set_value:
+            id: rotation
+            value: 0
+
+binary_sensor:
+  - platform: gpio
+    id: button
+    pin:
+      number: GPIO2
+      inverted: True
+      mode: INPUT_PULLUP
+    on_click: 
+      then:
+      # use if-condition instead of toggle to set full brightness on turn_on
+        - if:
+            condition:
+              light.is_on: light1
+            then:
+              - light.turn_off:
+                  id: light1
+            else:
+              - light.turn_on:
+                  id: light1
+                  brightness: 50%
+                  color_temperature: 2700 K
+
+output:
+  - platform: esp8266_pwm
+    pin: GPIO4
+    id: output_cw
+  - platform: esp8266_pwm
+    pin: GPIO5
+    id: output_ww
+
+light:
+  - platform: cwww
+    id: light1
+    default_transition_length: 0s
+    constant_brightness: true
+    name: "Lights"
+    cold_white: output_cw
+    warm_white: output_ww
+    cold_white_color_temperature: 6500 K
+    warm_white_color_temperature: 2600 K
+    gamma_correct: 0
