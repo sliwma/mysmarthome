@@ -1,0 +1,53 @@
+# Change these to yours (Ctrl+H advised):
+# "Remote" - your name
+# "ENTER-SECRET-HERE" - your secret
+# "YOUR-INTERFACE-HERE" - ether/pppoe/lte
+# "YOUR-DDNS-HERE" - your DDNS domain.
+# "192.168.10.0/24" - your local IP subnet/netmask
+# "192.168.5.0/24" - your remote IP subnet/netmask
+
+# IPSEC CONFIG
+
+/ip ipsec profile
+add dh-group=modp4096 enc-algorithm=aes-256,aes-128 hash-algorithm=sha512 name=Remote
+/ip ipsec peer
+add address=2.1.3.7/32 comment=Remote exchange-mode=ike2 name=Remote profile=Remote
+/ip ipsec proposal
+add auth-algorithms=sha512 enc-algorithms=aes-256-cbc name=Remote pfs-group=modp4096
+/ip ipsec identity
+add comment=Remote peer=Remote secret=ENTER-SECRET-HERE
+/ip ipsec policy
+add comment=Remote dst-address=192.168.5.0/24 peer=Remote proposal=Remote src-address=192.168.10.0/24 tunnel=yes
+
+# NAT config
+/ip firewall nat
+add action=accept chain=srcnat comment="IPsec VPN to Remote" dst-address=192.168.5.0/24 src-address=192.168.10.0/24
+add action=accept chain=dstnat comment="IPsec VPN from Remote" dst-address=192.168.10.0/24 src-address=192.168.5.0/24
+
+# Firewall config
+/ip firewall filter
+add action=accept chain=input comment="IPsec VPN NATT" dst-port=4500 in-interface=YOUR-INTERFACE-HERE protocol=udp
+add action=accept chain=forward comment="IPsec VPN from Remote" dst-address=192.168.10.0/24 in-interface=YOUR-INTERFACE-HERE ipsec-policy=in,ipsec src-address=192.168.5.0/24
+add action=accept chain=forward comment="IPsec VPN to Remote" dst-address=192.168.5.0/24 out-interface=YOUR-INTERFACE-HERE src-address=192.168.10.0/24
+
+# Script for updating remote IP address
+/system script
+add dont-require-permissions=no name=IPsec-peer-update-Remote owner=admin policy=read,write,test source=":local peerid    \"Remote\"\
+    \n:local peerhost  \"YOUR-DDNS-HERE\"\
+    \n:local peerip    [:resolve \$peerhost]\
+    \n:local peeruid\
+    \n:set peeruid     [/ip ipsec peer   find comment=\"\$peerid\" and address!=\"\$peerip/32\"]\
+    \n:local policyuid\
+    \n:set policyuid   [/ip ipsec policy find comment=\"\$peerid\" and sa-dst-address!=\"\$peerip\"]\
+    \n:if (\$peeruid != \"\") do={\
+    \n  /ip ipsec peer set \$peeruid address=\"\$peerip/32\"\
+    \n  :log info \"Script ipsec-peer-update updated peer '\$peerid' with address '\$peerip'\"\
+    \n}\
+    \n:if (\$policyuid != \"\") do={\
+    \n  /ip ipsec policy set \$policyuid sa-dst-address=\"\$peerip\"\
+    \n  :log info \"Script ipsec-peer-update updated policy '\$peerid' with address '\$peerip'\"\
+    \n}"
+
+# Scheduler entry, so it will check for new IP
+/system scheduler
+add interval=1m name=IPsec-peer-update-Remote on-event="/system script run IPsec-peer-update-Remote" policy=read,write,test start-date=sep/01/2020 start-time=00:00:00

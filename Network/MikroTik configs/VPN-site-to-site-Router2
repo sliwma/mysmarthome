@@ -1,0 +1,31 @@
+# Change these to yours (Ctrl+H advised):
+# "Local" - your name
+# "ENTER-SECRET-HERE" - your secret
+# "YOUR-INTERFACE-HERE" - ether/pppoe/lte
+# "YOUR-IP-ADDR" - your local public IP
+# "192.168.10.0/24" - your local IP subnet/netmask
+# "192.168.5.0/24" - your remote IP subnet/netmask
+
+# IPSEC CONFIG
+
+/ip ipsec profile
+add dh-group=modp4096 enc-algorithm=aes-256,aes-128 hash-algorithm=sha512 name=secure-profile
+/ip ipsec peer
+add address=YOUR-IP-ADDR/32 comment=Local exchange-mode=ike2 name=Local profile=secure-profile
+/ip ipsec proposal
+add auth-algorithms=sha512 enc-algorithms=aes-256-cbc name=secure-proposal pfs-group=modp4096
+/ip ipsec identity
+add comment=Local peer=Local secret=ENTER-SECRET-HERE
+/ip ipsec policy
+add comment=Local dst-address=192.168.10.0/24 peer=Local proposal=secure-proposal src-address=192.168.5.0/24 tunnel=yes
+
+# NAT config
+/ip firewall nat
+add action=accept chain=srcnat comment="IPsec VPN to Local" dst-address=192.168.5.0/24 src-address=192.168.10.0/24
+add action=accept chain=dstnat comment="IPsec VPN from Local" dst-address=192.168.10.0/24 src-address=192.168.5.0/24
+
+# Firewall config
+/ip firewall filter
+add action=accept chain=input comment="IPsec VPN NATT" dst-port=4500 in-interface=YOUR-INTERFACE-HERE protocol=udp
+add action=accept chain=forward comment="IPsec VPN from Local" dst-address=192.168.5.0/24 in-interface=YOUR-INTERFACE-HERE ipsec-policy=in,ipsec src-address=192.168.10.0/24
+add action=accept chain=forward comment="IPsec VPN to Local" dst-address=192.168.10.0/24 out-interface=YOUR-INTERFACE-HERE src-address=192.168.5.0/24
