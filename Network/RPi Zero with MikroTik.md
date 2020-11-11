@@ -13,4 +13,5 @@
 `options g_ether idVendor=0x05ac idProduct=0x1402 iProduct=Pi0 iManufacturer=Raspberry`
 * Now shutdown both RPi and MikroTik router, connect them and boot MikroTik.
 * RPi should show up in /interfaces as lte1.
-* Now add an IP address to lte1 interface - same subnet as on the Pi. After that, you should be able to connect to PiHole using its IP.
+* Now add an IP address to lte1 interface - same subnet as on the Pi. After that you should be able to connect to the PiHole using its IP.
+* Configure masquerade or NAT so RPi can access the Internet.
