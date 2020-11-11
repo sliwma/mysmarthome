@@ -1,14 +1,15 @@
 # My network
 
 ## Devices
-### My flat
+### My flat:
 - MikroTik RB4011iGS+5HacQ2HnD-IN - main router, WLAN AP
 - Synology DS1618+ - file server, Virtual Machine host (RouterOS with The Dude, Debian with Zabbix, HassOS with HomeAssistant), reverse proxy for my domain
 - Raspberry Pi 3B - PiHole DNS server
-### My family house
+- APC SmartUPS 750 w/AP9619 management card
+### My family house:
 - MikroTik RB760iGS - main router
 - MikroTik RBmAP2nD - WLAN AP
-- TP-Link MR3020 - WLAN AP
+- TP-Link MR3020 w/OpenWRT - WLAN AP
 - Synology DS209j - file server
 - Raspberry Pi Zero - PiHole DNS server
 
