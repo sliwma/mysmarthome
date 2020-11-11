@@ -1,5 +1,5 @@
 # My Smart Home project
-HomeAssistant configs, ESPhome configs, MikroTik configs, 
+HomeAssistant configs, ESPhome configs, MikroTik configs.
 
 ## ESPHome configs I made
 - Xiaomi Mi Desk Lamp (ESP82xx based)
