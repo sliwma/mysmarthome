@@ -19,7 +19,7 @@
   * [Flat router + script to fetch up-to-date IP address](https://github.com/sliwma/mysmarthome/blob/main/Network/MikroTik%20configs/VPN-site-to-site-Router1)
   * [House router](https://github.com/sliwma/mysmarthome/blob/main/Network/MikroTik%20configs/VPN-site-to-site-Router2)
 
-### PiHole DNS server
+### PiHole DNS server:
 * nothing special about Pi 3B
 * Pi Zero is connected to RB760iGS using USB cable. 
   * [HowTo](https://github.com/sliwma/mysmarthome/blob/main/Network/RPi%20Zero%20with%20MikroTik.md)
