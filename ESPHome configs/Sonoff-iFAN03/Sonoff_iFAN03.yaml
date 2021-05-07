@@ -47,7 +47,7 @@ binary_sensor:
       then:
         - fan.turn_on:
               id: ifan03_fan
-              speed: LOW
+              speed: 1
     internal: true
   - platform: remote_receiver
     id: remote_fan2
@@ -57,7 +57,7 @@ binary_sensor:
       then:
         - fan.turn_on:
               id: ifan03_fan
-              speed: MEDIUM
+              speed: 2
     internal: true
   - platform: remote_receiver
     id: remote_fan3
@@ -67,7 +67,7 @@ binary_sensor:
       then:
         - fan.turn_on:
               id: ifan03_fan
-              speed: HIGH
+              speed: 3
     internal: true
 
   - platform: remote_receiver
@@ -123,7 +123,7 @@ switch:
             then:
               - fan.turn_on:
                   id: ifan03_fan
-                  speed: LOW
+                  speed: 1
         - if:
             condition:
               and:
@@ -133,7 +133,7 @@ switch:
             then:
               - fan.turn_on:
                   id: ifan03_fan
-                  speed: MEDIUM
+                  speed: 2
         - if:
             condition:
               and:
@@ -143,7 +143,7 @@ switch:
             then:
               - fan.turn_on:
                   id: ifan03_fan
-                  speed: HIGH
+                  speed: 3
         - switch.turn_off: update_fan_speed
 
   - platform: gpio
@@ -162,4 +162,5 @@ fan:
   - platform: speed
     output: fanoutput
     id: ifan03_fan
-    name: "iFan03 Fan"
+    name: "iFan03"
+    speed_count: 3
