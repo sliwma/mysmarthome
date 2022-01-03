@@ -6,6 +6,16 @@ esphome:
   includes:
     - ifan03.h
 
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "PASS"
+
+ota:
+  password: "PASS"
+
 wifi:
   ssid: "<YOUR SSID>"
   password: "<YOUR PASSWORD>"
