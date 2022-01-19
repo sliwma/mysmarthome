@@ -5,11 +5,11 @@ Might not be elegant and efficient, but works without external automations.
 This setup works for me:
 button:
 (optional) Instant Standby mode - as kettle has to be in standby mode to enable any other mode (MCU limitation)
-select:
+#### select:
 * List of presets corresponding to buttons on the kettle's base
-number:
+#### number:
 * Custom temperature from 35°C to 100°C
-sensors:
+#### sensors:
 * Current temperature
 * Error - empty by default, will inform if the kettle was overheated, and when overheated for long time, it'll inform that the kettle is empty (and buzzer will constantly beep)
 * Status - standby/heating/cooling
