@@ -15,3 +15,5 @@ This setup works for me:
 * Status - standby/heating/cooling
 * Time remaining - how much time left to get to desired temperature - shows "5 min" when in standby, probably could be changed later
 * (optional) WiFi Signal
+
+![Home Assistant entities](https://github.com/sliwma/mysmarthome/blob/main/ESPHome%20configs/Clatronic-ProfiCook-PC-WKS-1167G/entities.png?raw=true)
