@@ -3,8 +3,8 @@ Might not be elegant and efficient, but works without external automations.
 
 ## Entities
 This setup works for me:
-button:
-(optional) Instant Standby mode - as kettle has to be in standby mode to enable any other mode (MCU limitation)
+#### button:
+* (optional) Instant Standby mode - as kettle has to be in standby mode to enable any other mode (MCU limitation)
 #### select:
 * List of presets corresponding to buttons on the kettle's base
 #### number:
