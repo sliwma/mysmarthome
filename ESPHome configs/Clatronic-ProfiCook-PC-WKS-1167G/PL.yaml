@@ -1,0 +1,275 @@
+substitutions:
+  devicename: kettle-kitchen
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: esp01_1m
+wifi:
+  ssid: !secret wifi_name
+  password: !secret wifi_pass
+  fast_connect: true
+  ap:
+    ssid: $devicename
+    password: !secret fallback
+
+captive_portal:
+
+logger:
+
+api:
+  password: !secret api_kettle_kitchen
+
+ota:
+  password: !secret api_kettle_kitchen
+
+uart:
+  rx_pin: GPIO3
+  tx_pin: GPIO1
+  baud_rate: 9600
+
+tuya:
+
+button:
+  - platform: template
+    name: "${devicename} Standby"
+    icon: "mdi:power-standby"
+    on_press:
+      - number.set:
+          id: number_mode
+          value: 6
+number:
+  - platform: "tuya"
+    id: number_mode
+    number_datapoint: 101
+    min_value: 0
+    max_value: 6
+    step: 1
+
+  - platform: "tuya"
+    name: "${devicename} Custom Temperature"
+    number_datapoint: 102
+    min_value: 35
+    max_value: 100
+    step: 5
+    unit_of_measurement: "°C"
+    icon: "mdi:thermometer"
+
+select:
+  - platform: template
+    name: "${devicename} Mode"
+    icon: "mdi:kettle"
+    id: select_mode
+    optimistic: true
+    options:
+      - "Oczekiwanie"
+      - "Podtrzymanie 45°C"
+      - "Podtrzymanie 60°C"
+      - "Podtrzymanie 85°C"
+      - "Podtrzymanie 100°C"
+      - "Podtrzymanie użytkownika"
+      - "Zagotowanie wody"
+    initial_option: "Oczekiwanie"
+    on_value:
+      then:
+      - if:
+          condition:
+            lambda: 'return id(select_mode).state == "Oczekiwanie";'
+          then:
+          - number.set:
+              id: number_mode
+              value: 6
+      - if:
+          condition:
+            lambda: 'return id(select_mode).state == "Podtrzymanie 45°C";'
+          then:
+          - number.set:
+              id: number_mode
+              value: 0
+      - if:
+          condition:
+            lambda: 'return id(select_mode).state == "Podtrzymanie 60°C";'
+          then:
+          - number.set:
+              id: number_mode
+              value: 1
+      - if:
+          condition:
+            lambda: 'return id(select_mode).state == "Podtrzymanie 85°C";'
+          then:
+          - number.set:
+              id: number_mode
+              value: 2
+      - if:
+          condition:
+            lambda: 'return id(select_mode).state == "Podtrzymanie 100°C";'
+          then:
+          - number.set:
+              id: number_mode
+              value: 3
+      - if:
+          condition:
+            lambda: 'return id(select_mode).state == "Zagotowanie wody";'
+          then:
+          - number.set:
+              id: number_mode
+              value: 4
+      - if:
+          condition:
+            lambda: 'return id(select_mode).state == "Podtrzymanie użytkownika";'
+          then:
+          - number.set:
+              id: number_mode
+              value: 5
+
+sensor:
+  - platform: wifi_signal
+    name: "${devicename} Signal"
+    update_interval: 60s
+    id: wifisignal
+
+  - platform: "tuya"
+    sensor_datapoint: 101
+    id: sensor_mode
+    on_value:
+      then:
+      - if:
+          condition:
+            lambda: 'return id(sensor_mode).state == 6;'
+          then:
+          - select.set:
+              id: select_mode
+              option: "Oczekiwanie"
+      - if:
+          condition:
+            lambda: 'return id(sensor_mode).state == 0;'
+          then:
+          - select.set:
+              id: select_mode
+              option: "Podtrzymanie 45°C"
+      - if:
+          condition:
+            lambda: 'return id(sensor_mode).state == 1;'
+          then:
+          - select.set:
+              id: select_mode
+              option: "Podtrzymanie 60°C"
+      - if:
+          condition:
+            lambda: 'return id(sensor_mode).state == 2;'
+          then:
+          - select.set:
+              id: select_mode
+              option: "Podtrzymanie 85°C"
+      - if:
+          condition:
+            lambda: 'return id(sensor_mode).state == 3;'
+          then:
+          - select.set:
+              id: select_mode
+              option: "Podtrzymanie 100°C"
+      - if:
+          condition:
+            lambda: 'return id(sensor_mode).state == 4;'
+          then:
+          - select.set:
+              id: select_mode
+              option: "Zagotowanie wody"
+      - if:
+          condition:
+            lambda: 'return id(sensor_mode).state == 4;'
+          then:
+          - select.set:
+              id: select_mode
+              option: "Podtrzymanie użytkownika"
+  - platform: "tuya"
+    sensor_datapoint: 104
+    id: sensor_error
+    on_value:
+      then:
+      - if:
+          condition:
+            lambda: 'return id(sensor_error).state == 0;'
+          then:
+          - text_sensor.template.publish:
+              id: text_error
+              state: ""
+      - if:
+          condition:
+            lambda: 'return id(sensor_error).state == 1;'
+          then:
+          - text_sensor.template.publish:
+              id: text_error
+              state: "Czajnik Pusty!"
+      - if:
+          condition:
+            lambda: 'return id(sensor_error).state == 4;'
+          then:
+          - text_sensor.template.publish:
+              id: text_error
+              state: "Przegrzanie!"
+              
+  - platform: "tuya"
+    name: "${devicename} Current Temperature"
+    sensor_datapoint: 105
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+
+  - platform: "tuya"
+    sensor_datapoint: 106
+    id: state
+    on_value:
+      then:
+      - if:
+          condition:
+            lambda: 'return id(state).state == 1;'
+          then:
+          - text_sensor.template.publish:
+              id: text_status
+              state: "Czajnik poza podstawą"
+      - if:
+          condition:
+            lambda: 'return id(state).state == 2;'
+          then:
+          - text_sensor.template.publish:
+              id: text_status
+              state: "Oczekiwanie"
+      - if:
+          condition:
+            lambda: 'return id(state).state == 3;'
+          then:
+          - text_sensor.template.publish:
+              id: text_status
+              state: "Podgrzewanie"
+      - if:
+          condition:
+            lambda: 'return id(state).state == 4;'
+          then:
+          - text_sensor.template.publish:
+              id: text_status
+              state: "Wychładzanie"
+      - if:
+          condition:
+            lambda: 'return id(state).state == 5;'
+          then:
+          - text_sensor.template.publish:
+              id: text_status
+              state: "Podtrzymywanie temperatury"
+
+  - platform: "tuya"
+    name: "${devicename} Time remaining"
+    icon: "mdi:timer"
+    sensor_datapoint: 107
+    unit_of_measurement: "min"
+
+text_sensor:
+  - platform: template
+    id: text_error
+    name: "${devicename} Error"
+    icon: "mdi:kettle-alert"
+
+  - platform: template
+    id: text_status
+    name: "${devicename} Status"
+    icon: "mdi:information-outline"
