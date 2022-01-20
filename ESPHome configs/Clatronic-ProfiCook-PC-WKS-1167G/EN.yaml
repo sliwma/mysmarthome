@@ -96,6 +96,25 @@ select:
           call.set_value(mode);
           call.perform();
 
+switch:
+  - platform: template
+    name: "${upper_devicename}"
+    icon: mdi:kettle
+    lambda: |-
+      if (id(state).state <=2 ) {
+        return false;
+      } else {
+        return true;
+      }
+    turn_on_action:
+      - number.set:
+          id: number_mode
+          value: 4
+    turn_off_action:
+      - number.set:
+          id: number_mode
+          value: 6
+          
 sensor:
   - platform: wifi_signal
     name: "${upper_devicename} Signal"
