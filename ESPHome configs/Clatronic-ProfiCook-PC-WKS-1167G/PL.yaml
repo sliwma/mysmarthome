@@ -111,7 +111,7 @@ sensor:
             std::string mode;
             switch(int(x)){
               case 6:
-                mode = "Standby";
+                mode = "Oczekiwanie";
                 break;
               case 0:
                 mode = "Podtrzymanie 45°C";
