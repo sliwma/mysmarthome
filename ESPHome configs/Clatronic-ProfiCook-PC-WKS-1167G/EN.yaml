@@ -39,6 +39,7 @@ button:
       - number.set:
           id: number_mode
           value: 6
+
 number:
   - platform: "tuya"
     id: number_mode
@@ -133,6 +134,7 @@ sensor:
             }
             call.set_option(mode);
             call.perform();
+
   - platform: "tuya"
     sensor_datapoint: 104
     id: sensor_error
@@ -149,7 +151,7 @@ sensor:
               id(text_error).publish_state("Kettle overheated!");
               break;
           }
-              
+
   - platform: "tuya"
     name: "${devicename} Current Temperature"
     sensor_datapoint: 105
