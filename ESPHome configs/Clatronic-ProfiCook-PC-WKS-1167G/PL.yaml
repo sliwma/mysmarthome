@@ -1,5 +1,6 @@
 substitutions:
   devicename: kettle-kitchen
+  upper_devicename: Czajnik Kuchnia
 
 esphome:
   name: $devicename
@@ -33,7 +34,7 @@ tuya:
 
 button:
   - platform: template
-    name: "${devicename} Standby"
+    name: "${upper_devicename} Standby"
     icon: "mdi:power-standby"
     on_press:
       - number.set:
@@ -49,7 +50,7 @@ number:
     step: 1
 
   - platform: "tuya"
-    name: "${devicename} Custom Temperature"
+    name: "${upper_devicename} Custom Temperature"
     number_datapoint: 102
     min_value: 35
     max_value: 100
@@ -59,7 +60,7 @@ number:
 
 select:
   - platform: template
-    name: "${devicename} Mode"
+    name: "${upper_devicename} Mode"
     icon: "mdi:kettle"
     id: select_mode
     optimistic: true
@@ -95,9 +96,28 @@ select:
           call.set_value(mode);
           call.perform();
 
+switch:
+  - platform: template
+    name: "${upper_devicename}"
+    icon: mdi:kettle
+    lambda: |-
+      if (id(state).state <=2 ) {
+        return false;
+      } else {
+        return true;
+      }
+    turn_on_action:
+      - number.set:
+          id: number_mode
+          value: 4
+    turn_off_action:
+      - number.set:
+          id: number_mode
+          value: 6
+          
 sensor:
   - platform: wifi_signal
-    name: "${devicename} Signal"
+    name: "${upper_devicename} Signal"
     update_interval: 60s
     id: wifisignal
 
@@ -153,7 +173,7 @@ sensor:
           }
 
   - platform: "tuya"
-    name: "${devicename} Current Temperature"
+    name: "${upper_devicename} Current Temperature"
     sensor_datapoint: 105
     unit_of_measurement: "°C"
     device_class: "temperature"
@@ -184,7 +204,7 @@ sensor:
           }
 
   - platform: "tuya"
-    name: "${devicename} Time remaining"
+    name: "${upper_devicename} Time remaining"
     icon: "mdi:timer"
     sensor_datapoint: 107
     unit_of_measurement: "min"
@@ -192,10 +212,10 @@ sensor:
 text_sensor:
   - platform: template
     id: text_error
-    name: "${devicename} Error"
+    name: "${upper_devicename} Error"
     icon: "mdi:kettle-alert"
 
   - platform: template
     id: text_status
-    name: "${devicename} Status"
+    name: "${upper_devicename} Status"
     icon: "mdi:information-outline"
