@@ -3,6 +3,8 @@ Might not be elegant and efficient, but works without external automations.
 
 ## Entities
 This setup works for me:
+#### switch:
+* (optional) Boil/turn off - instant boiling.
 #### button:
 * (optional) Instant Standby mode - as kettle has to be in standby mode to enable any other mode (MCU limitation)
 #### select:
